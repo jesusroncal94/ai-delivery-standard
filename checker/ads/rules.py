@@ -61,6 +61,10 @@ def claude_settings(project: Project) -> dict:
     return project.read_json(".claude/settings.json") or {}
 
 
+def normalized(path) -> bytes:
+    return path.read_bytes().replace(b"\r\n", b"\n")
+
+
 def skill_frontmatter(text: str) -> dict | None:
     match = re.match(r"^---\s*\n(.*?)\n---\s*\n", text, re.DOTALL)
     if not match:
@@ -241,7 +245,7 @@ def skills_mirror(project: Project) -> list[str]:
     problems = []
     for path in project.files(".agents/skills/*/SKILL.md"):
         mirror = project.path(f".claude/skills/{path.parent.name}/SKILL.md")
-        if not mirror.is_file() or mirror.read_bytes() != path.read_bytes():
+        if not mirror.is_file() or normalized(mirror) != normalized(path):
             problems.append(f".claude/skills/{path.parent.name}/SKILL.md differs from .agents/skills (run scripts/sync-skills.sh)")
     return problems
 

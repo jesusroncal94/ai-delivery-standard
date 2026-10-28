@@ -7,6 +7,7 @@ The standard follows semantic versioning as defined in [STANDARD.md](STANDARD.md
 - Secret scanning runs the gitleaks container over the whole history instead of `gitleaks-action`, which failed on a repository's first push (the root commit has no parent) and needs a licence for organisations.
 - `ads.sh new` and `adopt` render from the published repository, so the answers file records a source that `copier update` and CI can reach; `ADS_SOURCE=/standard` renders the local checkout.
 - `ads check` reads the Git remote and first commit date on the host, so projects checked out as worktrees pass L1-REMOTE.
+- L2-MIRROR ignores CRLF line endings, so Windows checkouts with `core.autocrlf` compare equal when Git holds identical blobs.
 - The local-only secret scan in `scripts/check.sh` passes Windows paths to Docker under Git Bash.
 
 ## 1.0.0 — 2026-10-28
