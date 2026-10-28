@@ -6,32 +6,35 @@
 #   scripts/ads.sh check <dir> [--json]           conformance of one project
 #   scripts/ads.sh portfolio <registry.yaml>      conformance of every project in a registry
 #   scripts/ads.sh usage [<transcripts dir>]      context per call from Claude Code transcripts
+# The current directory is mounted read-only at /cwd, e.g. new <dir> --data-file /cwd/portfolio-defaults.yml
 set -euo pipefail
 
-standard=$(cd "$(dirname "$0")/.." && pwd)
+abspath() { (cd "$1" && { pwd -W 2>/dev/null || pwd; }); }
+
+standard=$(abspath "$(dirname "$0")/..")
 image=ai-delivery-standard
 command=${1:?usage: ads.sh new|adopt|update|check|portfolio|usage ...}
 shift
 
-docker image inspect "$image" >/dev/null 2>&1 || docker build -q -t "$image" "$standard" >/dev/null
+docker build -q -t "$image" "$standard" >/dev/null
 
-run() { MSYS_NO_PATHCONV=1 docker run --rm -i -v "$standard:/standard:ro" "$@"; }
+run() { MSYS_NO_PATHCONV=1 docker run --rm -i -v "$standard:/standard:ro" -v "$(abspath .):/cwd:ro" "$@"; }
 
 case "$command" in
   new|adopt)
-    target=$(mkdir -p "${1:?target directory}" && cd "$1" && pwd); shift
+    mkdir -p "${1:?target directory}"; target=$(abspath "$1"); shift
     run -v "$target:/work" --entrypoint copier "$image" copy --trust "$@" /standard /work ;;
   update)
-    target=$(cd "${1:?target directory}" && pwd); shift
+    target=$(abspath "${1:?target directory}"); shift
     run -v "$target:/work" -w /work --entrypoint copier "$image" update --trust "$@" ;;
   check)
-    target=$(cd "${1:-.}" && pwd); shift || true
+    target=$(abspath "${1:-.}"); shift || true
     run -v "$target:/work" "$image" check /work "$@" ;;
   portfolio)
-    registry=$(cd "$(dirname "${1:?registry file}")" && pwd); name=$(basename "$1"); shift
+    registry=$(abspath "$(dirname "${1:?registry file}")"); name=$(basename "$1"); shift
     run -v "$registry:/portfolio" "$image" portfolio "/portfolio/$name" "$@" ;;
   usage)
-    transcripts=${1:-$HOME/.claude/projects}; shift || true
+    transcripts=$(abspath "${1:-$HOME/.claude/projects}"); shift || true
     run -v "$transcripts:/transcripts:ro" "$image" usage /transcripts "$@" ;;
   *) echo "unknown command: $command" >&2; exit 2 ;;
 esac

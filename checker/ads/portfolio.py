@@ -23,11 +23,18 @@ def read_registry(path: Path) -> tuple[Path, list[Entry]]:
     return root, entries
 
 
+EXCLUDED = "excluded"
+
+
 def evaluate_portfolio(root: Path, entries: list[Entry]) -> list[tuple[Entry, Result | None]]:
     return [
-        (entry, evaluate(Project.load(root / entry.path, entry.profile, entry.target)) if (root / entry.path).is_dir() else None)
+        (entry, evaluate(Project.load(root / entry.path, entry.profile, entry.target)) if is_checked(root, entry) else None)
         for entry in entries
     ]
+
+
+def is_checked(root: Path, entry: Entry) -> bool:
+    return entry.status != EXCLUDED and (root / entry.path).is_dir()
 
 
 def render_markdown(rows: list[tuple[Entry, Result | None]], today: str) -> str:
@@ -41,11 +48,13 @@ def render_markdown(rows: list[tuple[Entry, Result | None]], today: str) -> str:
     ]
     for entry, result in rows:
         if result is None:
-            lines.append(f"| {entry.path} | {entry.profile} | {entry.status} | L{entry.target} | — | folder not found |")
+            reason = (entry.note or "not checked") if entry.status == EXCLUDED else "folder not found"
+            lines.append(f"| {entry.path} | {entry.profile} | {entry.status} | L{entry.target} | — | {reason} |")
             continue
         failing = ", ".join(sorted({o.rule.id for o in result.failures()})) or "none"
         mark = "✅" if result.conforms else "❌"
         lines.append(f"| {entry.path} | {entry.profile} | {entry.status} | L{entry.target} | {mark} L{result.achieved} | {failing} |")
-    conforming = sum(1 for _, result in rows if result and result.conforms)
-    lines += ["", f"{conforming} of {len(rows)} projects meet their target level."]
+    checked = [result for entry, result in rows if entry.status != EXCLUDED]
+    conforming = sum(1 for result in checked if result and result.conforms)
+    lines += ["", f"{conforming} of {len(checked)} checked projects meet their target level."]
     return "\n".join(lines) + "\n"

@@ -38,7 +38,7 @@ conventions:
 standard_repo: https://github.com/your-org/ai-delivery-standard
 ```
 
-Pass it on every render: `scripts/ads.sh new ../x --data-file portfolio-defaults.yml`. Changing a convention means editing this file and running `copier update --data-file ...` in each project, so the change arrives as reviewed PRs rather than as edits by hand.
+Pass it on every render from the folder that holds it: `bash ai-delivery-standard/scripts/ads.sh new x --data-file /cwd/portfolio-defaults.yml` (the wrapper mounts the current folder read-only at `/cwd`). Changing a convention means editing this file and running `copier update --data-file ...` in each project, so the change arrives as reviewed PRs rather than as edits by hand.
 
 ## A portfolio-level rules file (optional)
 

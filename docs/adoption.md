@@ -8,7 +8,7 @@ Everything runs in Docker, so a machine needs only Docker and Git. On Windows, r
 scripts/ads.sh new ../my-api
 ```
 
-Copier asks for the profile, the level, the adapters and the check command; pass `--data-file portfolio-defaults.yml` to reuse a team's conventions (see [portfolio.md](portfolio.md)). Then:
+Copier asks for the profile, the level, the adapters and the check command; pass `--data-file /cwd/portfolio-defaults.yml` (the current folder is mounted at `/cwd`) to reuse a team's conventions (see [portfolio.md](portfolio.md)). Then:
 
 1. Fill in the Commands section of `AGENTS.md` and the check command in `scripts/check.sh`.
 2. `git init -b main`, commit, add the remote and push.

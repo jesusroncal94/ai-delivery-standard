@@ -18,7 +18,7 @@ def test_portfolio_report_lists_every_project(render, tmp_path):
 
     assert "| api | service | active | L2 | ✅ L" in report
     assert "| gone | demo | active | L1 | — | folder not found |" in report
-    assert "1 of 2 projects meet their target level." in report
+    assert "1 of 2 checked projects meet their target level." in report
 
 
 def test_usage_measures_context_per_call():
