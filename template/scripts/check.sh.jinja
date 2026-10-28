@@ -6,5 +6,5 @@ cd "$(dirname "$0")/.."
 {{ check_command }}
 {%- if local_only %}
 
-docker run --rm -v "$(pwd):/repo" zricethezav/gitleaks:v8.21.2 detect --source /repo --no-banner
+MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W 2>/dev/null || pwd):/repo" zricethezav/gitleaks:v8.21.2 detect --source /repo --no-banner --redact
 {%- endif %}

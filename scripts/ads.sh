@@ -7,12 +7,14 @@
 #   scripts/ads.sh portfolio <registry.yaml>      conformance of every project in a registry
 #   scripts/ads.sh usage [<transcripts dir>]      context per call from Claude Code transcripts
 # The current directory is mounted read-only at /cwd, e.g. new <dir> --data-file /cwd/portfolio-defaults.yml
+# new and adopt render from the published template (ADS_SOURCE=/standard renders this checkout instead).
 set -euo pipefail
 
 abspath() { (cd "$1" && { pwd -W 2>/dev/null || pwd; }); }
 
 standard=$(abspath "$(dirname "$0")/..")
 image=ai-delivery-standard
+source=${ADS_SOURCE:-https://github.com/jesusroncal94/ai-delivery-standard.git}
 command=${1:?usage: ads.sh new|adopt|update|check|portfolio|usage ...}
 shift
 
@@ -23,13 +25,15 @@ run() { MSYS_NO_PATHCONV=1 docker run --rm -i -v "$standard:/standard:ro" -v "$(
 case "$command" in
   new|adopt)
     mkdir -p "${1:?target directory}"; target=$(abspath "$1"); shift
-    run -v "$target:/work" --entrypoint copier "$image" copy --trust "$@" /standard /work ;;
+    run -v "$target:/work" --entrypoint copier "$image" copy --trust "$@" "$source" /work ;;
   update)
     target=$(abspath "${1:?target directory}"); shift
     run -v "$target:/work" -w /work --entrypoint copier "$image" update --trust "$@" ;;
   check)
     target=$(abspath "${1:-.}"); shift || true
-    run -v "$target:/work" "$image" check /work "$@" ;;
+    remotes=$(git -C "$target" remote 2>/dev/null | tr '\n' ' ' || true)
+    first_commit=$(git -C "$target" log --reverse --format=%cs --max-parents=0 2>/dev/null | head -n 1 || true)
+    run -v "$target:/work" -e ADS_GIT_REMOTES="$remotes" -e ADS_GIT_FIRST_COMMIT="$first_commit" "$image" check /work "$@" ;;
   portfolio)
     registry=$(abspath "$(dirname "${1:?registry file}")"); name=$(basename "$1"); shift
     run -v "$registry:/portfolio" "$image" portfolio "/portfolio/$name" "$@" ;;
