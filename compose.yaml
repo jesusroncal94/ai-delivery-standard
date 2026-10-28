@@ -1,0 +1,17 @@
+services:
+  ads:
+    build: .
+    volumes:
+      - .:/standard:ro
+      - ${ADS_TARGET:-.}:/work
+      - ${ADS_TRANSCRIPTS:-./checker/tests/fixtures/transcripts}:/transcripts:ro
+
+  tests:
+    build: .
+    entrypoint: ["pytest", "-q", "-p", "no:cacheprovider", "/standard/checker/tests"]
+    environment:
+      ADS_TEMPLATE: /standard
+      PYTHONPATH: /standard/checker
+      PYTHONDONTWRITEBYTECODE: "1"
+    volumes:
+      - .:/standard:ro

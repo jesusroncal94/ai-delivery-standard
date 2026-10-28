@@ -1,0 +1,15 @@
+# Token budget for agent work on this project. Review monthly with the metrics record.
+weekly:
+  # On a subscription: the share of the plan's weekly window this project may use.
+  window_share: 0.25
+  # On API or credits: a hard cap in USD, with alerts at 50% and 80%.
+  usd_cap: null
+session:
+  # Hand off to a fresh session when context per call passes this many tokens.
+  context_per_call: 200000
+  # Fixed context before any work (system, tools, MCP, rules), measured with /context.
+  fixed_floor: 55000
+headless:
+  max_turns: 30
+  max_budget_usd: 5
+  timeout_minutes: 60

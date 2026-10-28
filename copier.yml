@@ -1,0 +1,100 @@
+_min_copier_version: "9.4.0"
+_subdirectory: template
+_answers_file: .copier-answers.yml
+_exclude:
+  - _skills
+  - __pycache__
+  - .DS_Store
+_skip_if_exists:
+  - README.md
+  - .gitignore
+  - .mcp.json
+  - progress.md
+  - acceptance/features.json
+  - CHANGELOG.md
+  - docs/product/*.md
+  - docs/ops/*.md
+  - docs/privacy/*.md
+  - docs/security/*.md
+  - evals/*.md
+  - .standard/budget.yml
+  - metrics/*.md
+_message_after_copy: |
+  Rendered {{ project_name }} as profile {{ profile }} at level L{{ level }}.
+  Next: fill in the commands in AGENTS.md, run the checker, then commit.
+
+project_name:
+  type: str
+  help: Repository name (kebab-case)
+  default: "{{ _folder_name }}"
+  validator: >-
+    {% if not (project_name | regex_search('^[a-z0-9][a-z0-9.-]*$')) %}Use lowercase kebab-case.{% endif %}
+
+project_description:
+  type: str
+  help: One sentence on what the project does and for whom
+  default: "<one sentence on what this project does and for whom>"
+
+profile:
+  type: str
+  help: Project type
+  choices:
+    product — an app or service with users: product
+    service — an API, library or tool used by other code or people: service
+    research — an evidence library or analysis repository: research
+    site — a static or content site: site
+    demo — a sample or experiment that is not maintained: demo
+  default: service
+
+level:
+  type: int
+  help: Conformance level (cumulative)
+  choices:
+    L1 baseline — rules, check command, secret scanning, deny rules: 1
+    L2 gated — CI gates, protected paths, acceptance list, specs, skills: 2
+    L3 measured — budgets, metrics, eval gates, harness review: 3
+  default: "{% if profile == 'demo' %}1{% elif profile == 'product' %}3{% else %}2{% endif %}"
+
+modules:
+  type: str
+  help: Product modules
+  multiselect: true
+  when: "{{ profile == 'product' }}"
+  choices:
+    multi-user — several users or tenants keep data others must not see: multi-user
+    eu-personal-data — processes personal data of people in the EU: eu-personal-data
+    ai-extraction — a model turns user input into structured data: ai-extraction
+  default: []
+
+adapters:
+  type: str
+  help: Agent tool adapters (AGENTS.md and .agents/skills are always rendered)
+  multiselect: true
+  choices:
+    claude-code — CLAUDE.md, hooks, deny rules, skills mirror, small-model Explore: claude-code
+    copilot — .github/copilot-instructions.md pointing to AGENTS.md: copilot
+  default: [claude-code]
+
+local_only:
+  type: bool
+  help: Keep the repository without a remote (private tooling)
+  default: false
+
+check_command:
+  type: str
+  help: The command that lints and tests the project (agents run it before saying done)
+  default: "echo 'Define the check command in AGENTS.md and scripts/check.sh' && exit 1"
+
+conventions:
+  type: yaml
+  help: Portfolio conventions rendered into every AGENTS.md (a YAML list; pass a portfolio data file to share them)
+  default:
+    - "Conventional commits: `<type>(<scope>): <subject>`, imperative, lowercase, no trailing period."
+    - "One long-lived branch, `main`; short-lived feature branches; squash merges only."
+    - "Never commit a secret, token or key, even one documented as public; use environment variables."
+    - "Everything committed is in English."
+
+standard_repo:
+  type: str
+  help: Where the standard lives (used by CI to install the checker)
+  default: https://github.com/jesusroncal94/ai-delivery-standard

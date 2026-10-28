@@ -1,0 +1,10 @@
+# Harness review
+
+Quarterly, and after any model upgrade or change to `AGENTS.md` or the skills: what recurred, which guide or sensor changes, and what scaffolding no longer earns its cost. Newest first.
+
+## YYYY-MM-DD
+
+- Issues that recurred since the last review:
+- Rules added, changed or removed (and the check that now enforces them):
+- Scaffolding removed:
+- Metrics before and after:
