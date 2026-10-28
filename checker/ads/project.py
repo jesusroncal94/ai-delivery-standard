@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 from dataclasses import dataclass, field
 from datetime import date, datetime
@@ -66,10 +67,10 @@ class Project:
         return self.exists(".git")
 
     def remotes(self) -> list[str]:
-        return self._git("remote").split()
+        return os.environ.get("ADS_GIT_REMOTES", self._git("remote")).split()
 
     def first_commit_date(self) -> date | None:
-        output = self._git("log", "--reverse", "--format=%cs", "--max-parents=0")
+        output = os.environ.get("ADS_GIT_FIRST_COMMIT") or self._git("log", "--reverse", "--format=%cs", "--max-parents=0")
         first = output.split()[:1]
         return datetime.strptime(first[0], "%Y-%m-%d").date() if first else None
 

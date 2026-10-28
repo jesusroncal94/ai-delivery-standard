@@ -31,7 +31,9 @@ case "$command" in
     run -v "$target:/work" -w /work --entrypoint copier "$image" update --trust "$@" ;;
   check)
     target=$(abspath "${1:-.}"); shift || true
-    run -v "$target:/work" "$image" check /work "$@" ;;
+    remotes=$(git -C "$target" remote 2>/dev/null | tr '\n' ' ' || true)
+    first_commit=$(git -C "$target" log --reverse --format=%cs --max-parents=0 2>/dev/null | head -n 1 || true)
+    run -v "$target:/work" -e ADS_GIT_REMOTES="$remotes" -e ADS_GIT_FIRST_COMMIT="$first_commit" "$image" check /work "$@" ;;
   portfolio)
     registry=$(abspath "$(dirname "${1:?registry file}")"); name=$(basename "$1"); shift
     run -v "$registry:/portfolio" "$image" portfolio "/portfolio/$name" "$@" ;;
