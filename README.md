@@ -11,6 +11,8 @@ A versioned standard for building and running software with AI coding agents acr
 
 The normative rules are in [STANDARD.md](STANDARD.md): three layers (portfolio, project, session), five profiles (`product`, `service`, `research`, `site`, `demo`), three levels, context, session and cost rules with numeric limits, human gates and metrics. How to work with it day to day, step by step and who acts at each one, is in [docs/workflow.md](docs/workflow.md).
 
+![The three layers: what the portfolio, each project and each session own, where they live and what enforces them](docs/diagrams/three-layers.svg)
+
 ## How it is organised
 
 | Path | Content |

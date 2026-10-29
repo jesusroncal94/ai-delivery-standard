@@ -10,7 +10,9 @@ Three roles act:
 | Agent | Prepares: specs, code, tests, reviews, release notes, handoffs | Pushes, merges, releases, deploys, edits guarded paths, reads `.env` |
 | Sensors | Fail a change that breaks a rule: the check command, CI jobs, hooks, deny rules, `ads check` | Decide; a green run is necessary, not sufficient |
 
-Work happens at three moments: once when a project starts or adopts the standard, for every change, and on a schedule across the portfolio.
+Work happens at three moments: once when a project starts or adopts the standard, for every change, and on a schedule across the portfolio. They follow the standard's three layers: the portfolio, each project and each session.
+
+![The three layers: what the portfolio, each project and each session own, where they live and what enforces them](diagrams/three-layers.svg)
 
 ## 1. Start or adopt a project
 
@@ -27,13 +29,17 @@ What gets rendered, cumulatively:
 |---|---|
 | L1 | `AGENTS.md`, `README.md`, `.copier-answers.yml` (version, profile, level), `scripts/check.sh` and `check.ps1`, a `.gitignore` that excludes `.env`, and CI with the `check` and `secrets` jobs (none when `local_only`). With the Claude Code adapter: `CLAUDE.md` (`@AGENTS.md`), deny rules for `git push`, `gh pr merge` and `.env`, a session-start hook and a small-model `Explore` subagent. |
 | L2 | The skills `spec`, `build-slice`, `review`, `handoff` and `release` in `.agents/skills/` (mirrored to `.claude/skills/`), `acceptance/features.json`, `progress.md`, `docs/specs/`, `docs/adr/`, `.mcp.json`, `.standard/guarded-paths.txt` with its hook and `scripts/check-gates.sh`, and the CI jobs `conformance`, `gates` and the weekly `standard-update`. |
-| L3 | `.standard/budget.yml` (weekly budget, session limits, headless caps), `metrics/` for the monthly record and `docs/harness-review.md` for the quarterly review. |
+| L3 | `.standard/budget.yml` (weekly budget, session limits, headless caps), `metrics/` for the monthly record and `docs/harness-review.md` for the quarterly review. `ads check` asks for the monthly record once the repository is 45 days old, and products with `ai-extraction` keep an eval gate. |
 
-Profiles and options add on top: `product` adds `docs/product/`, `docs/ops/` and the `discover` skill; `service` adds `CHANGELOG.md`; the product modules add `docs/security/`, `docs/privacy/` with the `privacy-check` skill, or `evals/` with the `eval` skill; `diagrams` adds `docs/design/`, `docs/diagrams/` and the `update-diagram` skill. Skills are rendered at L2 and L3 only; at L1 the session rules live in `AGENTS.md` alone.
+Profiles and options add on top: `product` adds `docs/product/`, `docs/ops/` and the `discover` skill; `service` adds `CHANGELOG.md`; `research` adds source registration, absolute dates and frozen reports; `site` adds checks against the production build, a performance budget and a layout check; a `demo` says in its README that it is not maintained; the product modules add `docs/security/`, `docs/privacy/` with the `privacy-check` skill, or `evals/` with the `eval` skill; `diagrams` adds `docs/design/`, `docs/diagrams/`, the `update-diagram` skill and rule L1-DIAGRAMS. Skills are rendered at L2 and L3 only; at L1 the session rules live in `AGENTS.md` alone.
+
+![Levels L1 to L3 with the files and checks each adds, the five profiles with their default level, and the options chosen per project](diagrams/levels-and-profiles.svg)
 
 ## 2. The cycle of one change
 
 One change is one deliverable (S1): one acceptance entry, one spec or one fix, sized well below what an agent can finish, by default one to two hours of a person's work (S9). The skills below are rendered at L2 and L3.
+
+![The cycle of one change: agents prepare and stop, a human approves, merges and ships, and CI can fail the change](diagrams/change-cycle.svg)
 
 | # | Step | Who | What happens | Rules and sensors |
 |---|---|---|---|---|
@@ -48,6 +54,8 @@ One change is one deliverable (S1): one acceptance entry, one spec or one fix, s
 | 9 | `release` | Agent prepares, **human** ships | Confirm every entry in the release passes and CI is green (and the eval report is current if AI behaviour changed), write release notes and, for services, the `CHANGELOG.md` entry; report gaps in backups and restore tests, alerts, spend caps and migration order. | The human tags, releases and owns every production action; agents hold no production credentials. |
 
 ### Sessions inside the cycle
+
+![The cycle of one session: from a brief to a commit, with the loops back and the handoff to a fresh session](diagrams/session-cycle.svg)
 
 - **Brief first** (S2): every session starts from a written brief; at L2 and L3 the session-start hook prints the last entry of `progress.md`.
 - **Hand off** (S4): when context per call passes 200,000 tokens, before switching to an unrelated task, or at the end of a working day, the agent runs `handoff`: commit finished work, leave unfinished work on its branch, append an entry of at most ten lines, give the human a one-paragraph brief for the next session, and stop. The human pastes the brief into a fresh session.
@@ -78,4 +86,4 @@ One change is one deliverable (S1): one acceptance entry, one spec or one fix, s
 | Quarterly | Human | The harness review in `docs/harness-review.md` for each L3 project: what recurred, which guide or sensor changed, what scaffolding no longer earns its cost. Review the standard against its triggers in [evidence.md](evidence.md#review-triggers). |
 | On a new version | Human, agent helps | On a branch, `scripts/ads.sh update <dir>` replays the new version as a diff. The human resolves conflicts (`check-gates.sh` fails while any marker or `.rej` file remains), labels the PR `human-approved`, because `.copier-answers.yml` and `AGENTS.md` are guarded, and merges. |
 
-Read the metrics as trends over 8–12 weeks, never week to week, and never rank people by tokens (R7).
+What sessions measure feeds the portfolio back: the usage review (R6) and the metrics decide the budgets (R1) and which routing rules are kept (R4). Read the metrics as trends over 8–12 weeks, never week to week, and never rank people by tokens (R7).
