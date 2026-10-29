@@ -56,10 +56,13 @@ Profile `{{ profile }}`, level L{{ level }} of the [AI delivery standard]({{ sta
 - `progress.md`: the latest state between sessions.
 - `docs/specs/`: specs scaled to risk (full for data, auth, money or personal data; quick otherwise; none for one-line fixes).
 - `docs/adr/`: hard-to-reverse decisions; accepted ADRs change only through a superseding ADR.
-- `.agents/skills/`: repeatable workflows (`spec`, `build-slice`, `review`, `handoff`, `release`{% if profile == 'product' %}, `discover`{% endif %}{% if 'ai-extraction' in (modules or []) %}, `eval`{% endif %}{% if 'eu-personal-data' in (modules or []) %}, `privacy-check`{% endif %}).
+- `.agents/skills/`: repeatable workflows (`spec`, `build-slice`, `review`, `handoff`, `release`{% if profile == 'product' %}, `discover`{% endif %}{% if 'ai-extraction' in (modules or []) %}, `eval`{% endif %}{% if 'eu-personal-data' in (modules or []) %}, `privacy-check`{% endif %}{% if diagrams %}, `update-diagram`{% endif %}).
 {%- endif %}
 {%- if profile == 'product' %}
 - `docs/product/`: brief and assumptions; `docs/ops/`: runbook and restore log.
+{%- endif %}
+{%- if diagrams %}
+- `docs/design/`: how the diagrams are made in Penpot, their manifest and visual language; `docs/diagrams/`: the published SVGs, changed only through Penpot and `docs/design/postprocess-svg.sh`.
 {%- endif %}
 {%- if level >= 3 %}
 - `.standard/budget.yml` and `metrics/`: the token budget and the monthly metrics record.

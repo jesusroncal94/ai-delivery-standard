@@ -38,6 +38,21 @@ scripts/ads.sh update ../my-api
 
 Copier regenerates the old version, applies the new one and replays your local changes. Conflicts appear as inline markers or `.rej` files; resolve them, then open a PR. `check-gates.sh` fails while any marker or `.rej` file remains, and the guarded paths need the `human-approved` label. The scheduled `standard-update` job warns when a newer version exists.
 
+## Turn on diagrams
+
+The `diagrams` capability works with any profile and level. To add it to a project already on the standard, upgrade on a branch and pass the answer:
+
+```
+git -C ../my-api switch -c docs/diagrams
+scripts/ads.sh update ../my-api --data diagrams=true
+```
+
+Copier renders `docs/design/` (README, `tokens.json`, `postprocess-svg.sh`), `docs/diagrams/` and, at L2 and L3, the `update-diagram` skill; it adds `docs/design/` and `docs/diagrams/` to `AGENTS.md`. Then:
+
+1. Create the Penpot file `<project> · docs` (one page per diagram, one board per published SVG) and connect the Penpot MCP plugin to it.
+2. If the project already keeps diagrams, move the SVGs to `docs/diagrams/` and give each a row in the manifest of `docs/design/README.md`. An existing `docs/design/README.md` or `tokens.json` is kept, not overwritten; merge the rendered sections into it by hand.
+3. Run `bash docs/design/postprocess-svg.sh`, then `scripts/ads.sh check ../my-api`: rule L1-DIAGRAMS fails until every SVG has a row, every row has an SVG and no SVG carries `@font-face` or `<script>`.
+
 ## Check conformance
 
 ```

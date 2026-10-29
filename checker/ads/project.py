@@ -19,6 +19,7 @@ class Project:
     adapters: list[str] = field(default_factory=list)
     modules: list[str] = field(default_factory=list)
     local_only: bool = False
+    diagrams: bool = False
     has_answers: bool = False
 
     @classmethod
@@ -31,6 +32,7 @@ class Project:
             adapters=list(answers.get("adapters") or []),
             modules=list(answers.get("modules") or []),
             local_only=bool(answers.get("local_only", False)),
+            diagrams=bool(answers.get("diagrams", False)),
             has_answers=bool(answers),
         )
 

@@ -16,6 +16,8 @@ _skip_if_exists:
   - docs/ops/*.md
   - docs/privacy/*.md
   - docs/security/*.md
+  - docs/design/README.md
+  - docs/design/tokens.json
   - evals/*.md
   - .standard/budget.yml
   - metrics/*.md
@@ -74,6 +76,11 @@ adapters:
     claude-code — CLAUDE.md, hooks, deny rules, skills mirror, small-model Explore: claude-code
     copilot — .github/copilot-instructions.md pointing to AGENTS.md: copilot
   default: [claude-code]
+
+diagrams:
+  type: bool
+  help: Document the project with diagrams designed in Penpot and published as SVG to docs/diagrams/
+  default: false
 
 local_only:
   type: bool

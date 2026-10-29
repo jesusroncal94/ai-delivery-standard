@@ -2,6 +2,13 @@
 
 The standard follows semantic versioning as defined in [STANDARD.md](STANDARD.md#10-versioning).
 
+## 1.1.0 — 2026-10-29
+
+- Optional `diagrams` capability for every profile and level (Copier question `diagrams`, default false): Penpot is the source of truth for a project's diagrams and the repository keeps what is published. It renders `docs/design/README.md` (the Penpot file `<project> · docs`, working through the Penpot MCP plugin, an empty manifest, the visual language and the content rules), `docs/design/tokens.json` (the shared visual language), `docs/design/postprocess-svg.sh`, `docs/diagrams/` and, at L2 and L3, the `update-diagram` skill. The README and tokens are owned by the project after rendering.
+- New rule L1-DIAGRAMS, applied only with `diagrams: true`: the manifest and `docs/diagrams/` agree, and no SVG contains `@font-face` or `<script>`.
+- `AGENTS.md` lists `docs/design/`, `docs/diagrams/` and the `update-diagram` skill when diagrams are on.
+- The test suite renders a committed snapshot of the working tree instead of the latest tag, so it tests the change under review.
+
 ## 1.0.1 — 2026-10-28
 
 - Secret scanning runs the gitleaks container over the whole history instead of `gitleaks-action`, which failed on a repository's first push (the root commit has no parent), fails on pull requests in private repositories (the default token cannot list the PR's commits) and needs a licence for organisations.
