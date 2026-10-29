@@ -2,6 +2,13 @@
 
 The standard follows semantic versioning as defined in [STANDARD.md](STANDARD.md#10-versioning).
 
+## 1.1.1 — unreleased
+
+Documentation only; no rule, template or checker changes.
+
+- `docs/workflow.md`: the day-to-day usage guide. It covers starting or adopting a project, the cycle of one change from `discover` to `release` with the human gates and CI jobs, the session rules S1–S11 at each step, and portfolio maintenance, saying who acts at each step. It is linked from the README.
+- The repository documents itself with the `diagrams` capability: the Penpot file `ai-delivery-standard · docs`, `docs/design/` (manifest, visual language, `tokens.json`, `postprocess-svg.sh`) and four SVGs in `docs/diagrams/` (three layers, the cycle of one change, the cycle of one session, levels and profiles), embedded in the guide and the README.
+
 ## 1.1.0 — 2026-10-29
 
 - Optional `diagrams` capability for every profile and level (Copier question `diagrams`, default false): Penpot is the source of truth for a project's diagrams and the repository keeps what is published. It renders `docs/design/README.md` (the Penpot file `<project> · docs`, working through the Penpot MCP plugin, an empty manifest, the visual language and the content rules), `docs/design/tokens.json` (the shared visual language), `docs/design/postprocess-svg.sh`, `docs/diagrams/` and, at L2 and L3, the `update-diagram` skill. The README and tokens are owned by the project after rendering.
