@@ -9,7 +9,9 @@ A versioned standard for building and running software with AI coding agents acr
 - **Checks conformance**: `ads check` scores a repository against its profile and level (L1 baseline, L2 gated, L3 measured); `ads portfolio` does it for every project in a registry.
 - **Measures sessions**: `ads usage` reads Claude Code transcripts and reports context per call, the metric behind the session rules.
 
-The normative rules are in [STANDARD.md](STANDARD.md): three layers (portfolio, project, session), five profiles (`product`, `service`, `research`, `site`, `demo`), three levels, context, session and cost rules with numeric limits, human gates and metrics.
+The normative rules are in [STANDARD.md](STANDARD.md): three layers (portfolio, project, session), five profiles (`product`, `service`, `research`, `site`, `demo`), three levels, context, session and cost rules with numeric limits, human gates and metrics. How to work with it day to day, step by step and who acts at each one, is in [docs/workflow.md](docs/workflow.md).
+
+![The three layers: what the portfolio, each project and each session own, where they live and what enforces them](docs/diagrams/three-layers.svg)
 
 ## How it is organised
 
@@ -19,7 +21,7 @@ The normative rules are in [STANDARD.md](STANDARD.md): three layers (portfolio, 
 | `copier.yml`, `template/` | The Copier questions and the files it renders; `template/_skills/` holds the single source of every skill |
 | `checker/` | The `ads` Python package (conformance rules, portfolio report, usage metrics) and its tests |
 | `scripts/ads.sh`, `scripts/ads.ps1` | Run everything in Docker |
-| `docs/` | [Evidence](docs/evidence.md), [adoption](docs/adoption.md), [portfolio](docs/portfolio.md) |
+| `docs/` | [Workflow](docs/workflow.md), [evidence](docs/evidence.md), [adoption](docs/adoption.md), [portfolio](docs/portfolio.md) |
 | `CHANGELOG.md`, `DEPRECATIONS.md` | Release history and deprecation notices |
 
 ## How to run it
