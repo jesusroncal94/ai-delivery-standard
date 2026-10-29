@@ -10,7 +10,7 @@ def test_raising_the_level_through_copier_update_adds_the_gated_files(render):
     project = render("raise-me", profile="service", level=1)
     assert Project.load(project).level == 1
 
-    run_update(project, data={"level": 2}, defaults=True, overwrite=True, unsafe=True, quiet=True)
+    run_update(project, data={"level": 2}, vcs_ref="HEAD", defaults=True, overwrite=True, unsafe=True, quiet=True)
     git(project, "add", "-A")
     git(project, "commit", "-q", "-m", "chore: raise the standard level to L2")
 
