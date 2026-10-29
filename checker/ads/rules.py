@@ -28,6 +28,9 @@ MODULE_FILES = {
     "eu-personal-data": "docs/privacy/record-of-processing.md",
     "ai-extraction": "evals/schema.md",
 }
+DIAGRAMS_MANIFEST = "docs/design/README.md"
+DIAGRAMS_DIR = "docs/diagrams"
+UNSAFE_SVG_MARKERS = ("@font-face", "<script")
 
 
 @dataclass(frozen=True)
@@ -152,6 +155,39 @@ def secret_scanning(project: Project) -> list[str]:
 def deny_rules(project: Project) -> list[str]:
     deny = " ".join(claude_settings(project).get("permissions", {}).get("deny", []))
     return [f"no deny rule for '{pattern}' in .claude/settings.json" for pattern in DENY_PATTERNS if pattern not in deny]
+
+
+def manifest_rows(text: str) -> list[str] | None:
+    section = re.search(r"^## Manifest[ \t]*\n(.*?)(?=^## |\Z)", text, re.MULTILINE | re.DOTALL)
+    if not section:
+        return None
+    table = [line.strip() for line in section.group(1).splitlines() if line.strip().startswith("|")]
+    return [row for row in table[1:] if not re.fullmatch(r"\|[\s:|-]+\|", row)]
+
+
+@rule("L1-DIAGRAMS", 1, "The diagrams manifest and the published SVGs agree, and no SVG loads fonts or scripts", lambda p: p.diagrams)
+def diagrams(project: Project) -> list[str]:
+    rows = manifest_rows(project.read(DIAGRAMS_MANIFEST))
+    if rows is None:
+        return [f"{DIAGRAMS_MANIFEST} is missing or has no '## Manifest' section"]
+    problems, listed = [], set()
+    design = project.path(DIAGRAMS_MANIFEST).parent
+    for row in rows:
+        links = re.findall(r"\]\(([^)\s]+\.svg)\)", row)
+        if not links:
+            problems.append(f"manifest row '{row[:60]}' links no SVG")
+        for link in links:
+            target = (design / link).resolve()
+            listed.add(target)
+            if not target.is_file():
+                problems.append(f"the manifest links {link}, which does not exist")
+    for path in project.files(f"{DIAGRAMS_DIR}/**/*.svg"):
+        relative = path.relative_to(project.root).as_posix()
+        if path.resolve() not in listed:
+            problems.append(f"{relative} is not in the manifest of {DIAGRAMS_MANIFEST}")
+        text = path.read_text(encoding="utf-8", errors="replace").lower()
+        problems += [f"{relative} contains {marker}; run docs/design/postprocess-svg.sh or re-export it" for marker in UNSAFE_SVG_MARKERS if marker in text]
+    return problems
 
 
 @rule("L2-CI", 2, "CI runs the check and the conformance checker on every pull request", has_remote_ci)

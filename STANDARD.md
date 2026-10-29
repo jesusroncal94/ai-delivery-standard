@@ -1,4 +1,4 @@
-# AI delivery standard — version 1.0.0
+# AI delivery standard — version 1.1.0
 
 This document is normative. **MUST** and **MUST NOT** are checked by `ads check` (the rule ID is given) or by a human gate; **SHOULD** is expected unless the project records why not. Numeric limits are policy defaults dated 2026-10-28, chosen from vendor limits and measurements listed in [docs/evidence.md](docs/evidence.md); they are reviewed on the triggers in [docs/evidence.md#review-triggers](docs/evidence.md#review-triggers).
 
@@ -42,6 +42,7 @@ Levels are cumulative: L2 includes L1, L3 includes L2. `ads check` reports the h
 | L1-GITIGNORE | `.gitignore` MUST exclude `.env` files. |
 | L1-SECRETS | Secret scanning (gitleaks) MUST run in CI or, for local-only projects, in the check command. |
 | L1-DENY | With the Claude Code adapter, agents MUST be denied `git push`, `gh pr merge` and reading `.env`. |
+| L1-DIAGRAMS | With the `diagrams` capability, every row of the manifest in `docs/design/README.md` MUST link an existing SVG, and every SVG in `docs/diagrams/` MUST have a row and MUST NOT contain `@font-face` or `<script>`. |
 
 ### L2 gated
 
@@ -147,6 +148,7 @@ For one to five people, read trends over 8–12 weeks, not week to week.
 - The **core** is tool-neutral: `AGENTS.md`, `.agents/skills/`, `scripts/check.*`, CI, `acceptance/`, `docs/`. Codex, Cursor, Copilot and Gemini CLI read `AGENTS.md`; `.agents/skills` is read by Codex, Copilot, Cursor and Gemini CLI.
 - The **Claude Code adapter** adds `CLAUDE.md` (`@AGENTS.md`, never a symlink, because Windows checks symlinks out as text), the `.claude/skills/` mirror, deny rules, a session-start hook, the guarded-paths hook and a small-model `Explore` subagent.
 - The **Copilot adapter** adds `.github/copilot-instructions.md` pointing to `AGENTS.md`.
+- The optional **diagrams** capability (`diagrams: true`, any profile and level) makes Penpot the source of truth for a project's diagrams and the repository the home of what is published: a Penpot file named `<project> · docs` with one page per diagram and one board per SVG, the exported SVGs in `docs/diagrams/`, and in `docs/design/` a README with the manifest, the visual language and the content rules, `tokens.json` (the shared visual language) and `postprocess-svg.sh`, which strips web fonts and adds system fallbacks. The README and tokens belong to the project after rendering; the script and the `update-diagram` skill (L2 and L3, where skills are rendered) stay with the template. Agents work through the Penpot MCP plugin, which cannot write to disk, so the human exports the SVGs and the agent copies them in.
 - Enforcement travels with the repository (CI, hooks, rulesets), never with an agent's instruction channel.
 
 ## 10. Versioning

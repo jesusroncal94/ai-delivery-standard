@@ -4,7 +4,7 @@ A versioned standard for building and running software with AI coding agents acr
 
 ## What it does
 
-- **Renders a project** with the files its type and level need: a short, tool-neutral `AGENTS.md`, lifecycle skills in `.agents/skills/`, one check command, CI with gates, guarded paths, an acceptance list, a progress log, specs and ADRs, and optional product modules for multi-user data, EU personal data and AI extraction.
+- **Renders a project** with the files its type and level need: a short, tool-neutral `AGENTS.md`, lifecycle skills in `.agents/skills/`, one check command, CI with gates, guarded paths, an acceptance list, a progress log, specs and ADRs, optional product modules for multi-user data, EU personal data and AI extraction, and optional diagrams designed in Penpot and published as SVG.
 - **Upgrades projects in place**: `copier update` replays each new version onto existing repositories as a reviewable diff, and a scheduled CI job warns when a project is behind.
 - **Checks conformance**: `ads check` scores a repository against its profile and level (L1 baseline, L2 gated, L3 measured); `ads portfolio` does it for every project in a registry.
 - **Measures sessions**: `ads usage` reads Claude Code transcripts and reports context per call, the metric behind the session rules.
