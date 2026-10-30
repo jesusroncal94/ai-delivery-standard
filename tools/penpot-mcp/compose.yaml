@@ -1,0 +1,39 @@
+name: penpot-mcp
+
+x-penpot-mcp: &penpot-mcp
+  build:
+    context: .
+    args:
+      PENPOT_MCP_VERSION: "2.17.0"
+  image: penpot-mcp:2.17.0
+  restart: unless-stopped
+  init: true
+
+services:
+  server:
+    <<: *penpot-mcp
+    working_dir: /opt/penpot-mcp/packages/server
+    command: ["node", "dist/index.js"]
+    ports:
+      - "127.0.0.1:4401:4401"
+      - "127.0.0.1:4402:4402"
+    volumes:
+      - ./files:/files
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('net').connect(4401, '127.0.0.1').on('connect', () => process.exit(0)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  plugin:
+    <<: *penpot-mcp
+    working_dir: /opt/penpot-mcp/packages/plugin
+    command: ["pnpm", "run", "start"]
+    ports:
+      - "127.0.0.1:4400:4400"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4400/manifest.json').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s

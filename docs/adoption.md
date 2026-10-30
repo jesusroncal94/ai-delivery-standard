@@ -49,7 +49,7 @@ scripts/ads.sh update ../my-api --data diagrams=true
 
 Copier renders `docs/design/` (README, `tokens.json`, `postprocess-svg.sh`), `docs/diagrams/` and, at L2 and L3, the `update-diagram` skill; it adds `docs/design/` and `docs/diagrams/` to `AGENTS.md`. Then:
 
-1. Create the Penpot file `<project> · docs` (one page per diagram, one board per published SVG) and connect the Penpot MCP plugin to it.
+1. Create the Penpot file `<project> · docs` (one page per diagram, one board per published SVG) and connect the Penpot MCP plugin to it. To run the Penpot MCP server locally instead of through a hosted connector, start [`tools/penpot-mcp/`](../tools/penpot-mcp/README.md) and register `http://localhost:4401/mcp` in the project's `.mcp.json`.
 2. If the project already keeps diagrams, move the SVGs to `docs/diagrams/` and give each a row in the manifest of `docs/design/README.md`. An existing `docs/design/README.md` or `tokens.json` is kept, not overwritten; merge the rendered sections into it by hand.
 3. Run `bash docs/design/postprocess-svg.sh`, then `scripts/ads.sh check ../my-api`: rule L1-DIAGRAMS fails until every SVG has a row, every row has an SVG and no SVG carries `@font-face` or `<script>`.
 

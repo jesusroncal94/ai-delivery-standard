@@ -2,6 +2,12 @@
 
 The standard follows semantic versioning as defined in [STANDARD.md](STANDARD.md#10-versioning).
 
+## 1.1.3 — unreleased
+
+Tooling and documentation only; no rule, template or checker changes.
+
+- `tools/penpot-mcp/`: Penpot's official MCP server (`@penpot/mcp` 2.17.0) and its plugin in Docker, bound to `127.0.0.1`, as the local alternative to a hosted Penpot MCP connector for projects with the `diagrams` capability. Its README covers starting it, the one-time plugin setup in Penpot, registering `http://localhost:4401/mcp` in a project's `.mcp.json`, the `files/` mount and upgrading. Linked from the diagrams step in `docs/adoption.md` and from the README.
+
 ## 1.1.2 — 2026-10-30
 
 Fixes to the wrappers and the checker; no rule or template changes.
