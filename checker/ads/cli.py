@@ -25,6 +25,7 @@ def main(argv: list[str] | None = None) -> int:
     portfolio = commands.add_parser("portfolio", help="Check every project in a registry")
     portfolio.add_argument("registry")
     portfolio.add_argument("--output")
+    portfolio.add_argument("--root", help="folder that holds the projects; overrides the registry's root:")
 
     usage = commands.add_parser("usage", help="Summarise context per call from Claude Code transcripts")
     usage.add_argument("transcripts", nargs="?", default="/transcripts")
@@ -53,7 +54,7 @@ def render_result(result: Result) -> str:
 
 
 def run_portfolio(args) -> int:
-    root, entries = read_registry(Path(args.registry))
+    root, entries = read_registry(Path(args.registry), Path(args.root) if args.root else None)
     rows = evaluate_portfolio(root, entries)
     report = render_markdown(rows, date.today().isoformat())
     if args.output:

@@ -2,6 +2,16 @@
 
 The standard follows semantic versioning as defined in [STANDARD.md](STANDARD.md#10-versioning).
 
+## 1.1.2 — 2026-10-30
+
+Fixes to the wrappers and the checker; no rule or template changes.
+
+- `ads.sh portfolio` sees the projects wherever the registry's `root:` points. It mounted only the registry's folder, so a registry kept in its own folder next to the projects (`root: ..`) found no project. The wrapper now reads `root:` on the host and, when it is outside the registry's folder, mounts that folder read-only at `/projects`; the registry's folder stays writable at `/portfolio` for `--output`. Registries with `root: .` run exactly as before.
+- `ads portfolio --root <dir>` overrides the registry's `root:`.
+- `ads.sh portfolio` accepts a registry path written with backslashes, as PowerShell passes it.
+- `ads.ps1` runs Git Bash from the Git for Windows installation instead of the first `bash.exe` on PATH, which is often WSL's and cannot run Windows paths.
+- `docs/portfolio.md`: keeping the registry in its own private repository next to the projects, with a one-line `CLAUDE.md` in the projects folder that imports the registry's rules file.
+
 ## 1.1.1 — 2026-10-29
 
 Documentation only; no rule, template or checker changes.

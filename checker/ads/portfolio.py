@@ -16,11 +16,11 @@ class Entry:
     note: str = ""
 
 
-def read_registry(path: Path) -> tuple[Path, list[Entry]]:
+def read_registry(path: Path, root: Path | None = None) -> tuple[Path, list[Entry]]:
     data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    root = (path.parent / data.get("root", ".")).resolve()
+    projects = (root or path.parent / data.get("root", ".")).resolve()
     entries = [Entry(**item) for item in data.get("projects", [])]
-    return root, entries
+    return projects, entries
 
 
 EXCLUDED = "excluded"

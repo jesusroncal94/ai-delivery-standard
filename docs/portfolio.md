@@ -22,7 +22,25 @@ projects:
     status: archived
 ```
 
-`scripts/ads.sh portfolio portfolio.yaml --output /portfolio/portfolio-status.md` checks every project against its target and writes a table of achieved levels and failing rules. The registry's profile and target apply when a project has no answers file yet, which is how unadopted repositories show up as gaps.
+`scripts/ads.sh portfolio portfolio.yaml --output /portfolio/portfolio-status.md` checks every project against its target and writes a table of achieved levels and failing rules. The registry's profile and target apply when a project has no answers file yet, which is how unadopted repositories show up as gaps. The wrapper mounts the registry's folder at `/portfolio`, so reports are written there, and mounts the projects folder read-only when `root:` points outside it. Write `root:` as a plain path on its own line; the wrapper reads it on the host.
+
+### Keeping the registry in its own repository
+
+The registry names every project, its profile and its notes, so version it in a **private** repository next to the projects, never in a public one:
+
+```
+Projects/
+  CLAUDE.md               # one line: @projects-registry/AGENTS.md
+  projects-registry/      # private repository
+    portfolio.yaml        # root: ..
+    portfolio-defaults.yml
+    AGENTS.md             # the portfolio-level rules file
+    PORTFOLIO.md          # generated
+  billing-api/
+  onboarding-app/
+```
+
+From the projects folder, `bash ai-delivery-standard/scripts/ads.sh portfolio projects-registry/portfolio.yaml --output /portfolio/PORTFOLIO.md` checks the projects and writes the report into the registry. The registry's own repository can appear in `projects:` like any other, and renders take the shared answers as `--data-file /cwd/projects-registry/portfolio-defaults.yml`. The one-line `CLAUDE.md` stays unversioned in the projects folder: agents that load parent folders' instruction files read it and, through the import, the registry's rules file (below).
 
 ## Shared conventions: `portfolio-defaults.yml`
 
