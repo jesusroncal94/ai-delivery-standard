@@ -21,6 +21,7 @@ The normative rules are in [STANDARD.md](STANDARD.md): three layers (portfolio, 
 | `copier.yml`, `template/` | The Copier questions and the files it renders; `template/_skills/` holds the single source of every skill |
 | `checker/` | The `ads` Python package (conformance rules, portfolio report, usage metrics) and its tests |
 | `scripts/ads.sh`, `scripts/ads.ps1` | Run everything in Docker |
+| `tools/penpot-mcp/` | [A local Penpot MCP server](tools/penpot-mcp/README.md) in Docker, for projects with diagrams |
 | `docs/` | [Workflow](docs/workflow.md), [evidence](docs/evidence.md), [adoption](docs/adoption.md), [portfolio](docs/portfolio.md) |
 | `CHANGELOG.md`, `DEPRECATIONS.md` | Release history and deprecation notices |
 

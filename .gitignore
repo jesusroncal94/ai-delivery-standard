@@ -6,3 +6,5 @@ build/
 .env.*
 .claude/settings.local.json
 .claude/worktrees/
+tools/penpot-mcp/files/*
+!tools/penpot-mcp/files/.gitkeep
