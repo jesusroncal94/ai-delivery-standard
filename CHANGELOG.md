@@ -2,7 +2,7 @@
 
 The standard follows semantic versioning as defined in [STANDARD.md](STANDARD.md#10-versioning).
 
-## 1.1.3 — unreleased
+## 1.1.3 — 2026-11-01
 
 Tooling and documentation only; no rule, template or checker changes.
 
