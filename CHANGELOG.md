@@ -2,6 +2,14 @@
 
 The standard follows semantic versioning as defined in [STANDARD.md](STANDARD.md#10-versioning).
 
+## 1.1.5 — unreleased
+
+A template fix; no rule or checker changes.
+
+- `scripts/check.sh` no longer calls itself when the check command runs it. A project that answered `check_command` with `bash scripts/check.sh` (or `scripts/check.sh`, or a command running `scripts/check.ps1`) got a script that ran that command, which ran the script again, forever. Such an answer now renders a script that fails with a message asking for the real check; `AGENTS.md` still shows the answer as the command agents run. A Copier validator was rejected: on `copier update --defaults` Copier drops an answer that fails validation and silently renders the default instead, and a check too long for one line belongs in the script.
+- Upgrading a project whose answer runs `scripts/check.sh` and whose script already holds the real check: `ads.sh update` keeps the answer and leaves one conflict in `scripts/check.sh`. Keep the `before updating` side, which is your check, and delete the placeholder.
+- `docs/adoption.md` and the `check_command` help text say to answer `bash scripts/check.sh` when the check is written in the script.
+
 ## 1.1.4 — 2026-11-01
 
 A checker fix; no rule or template changes.

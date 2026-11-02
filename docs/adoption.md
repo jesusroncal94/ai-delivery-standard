@@ -10,7 +10,7 @@ scripts/ads.sh new ../my-api
 
 Copier asks for the profile, the level, the adapters and the check command; pass `--data-file /cwd/portfolio-defaults.yml` (the current folder is mounted at `/cwd`) to reuse a team's conventions (see [portfolio.md](portfolio.md)). Then:
 
-1. Fill in the Commands section of `AGENTS.md` and the check command in `scripts/check.sh`.
+1. Fill in the Commands section of `AGENTS.md` and the check command in `scripts/check.sh`. A check too long for one line goes in the script itself: answer `bash scripts/check.sh`, and Copier renders a script that fails until you write the check there, never one that calls itself.
 2. `git init -b main`, commit, add the remote and push.
 3. Protect `main`: require a pull request and the `standard` workflow's checks. Create the `human-approved` label.
 4. Run `scripts/ads.sh check ../my-api` until it conforms.

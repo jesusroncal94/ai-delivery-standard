@@ -89,7 +89,7 @@ local_only:
 
 check_command:
   type: str
-  help: The command that lints and tests the project (agents run it before saying done)
+  help: The command that lints and tests the project (agents run it before saying done); answer `bash scripts/check.sh` to write the check in that script yourself
   default: "echo 'Define the check command in AGENTS.md and scripts/check.sh' && exit 1"
 
 conventions:
