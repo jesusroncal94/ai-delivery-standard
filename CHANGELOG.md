@@ -2,6 +2,12 @@
 
 The standard follows semantic versioning as defined in [STANDARD.md](STANDARD.md#10-versioning).
 
+## 1.1.4 — 2026-11-01
+
+A checker fix; no rule or template changes.
+
+- `ads --version` reports the release: it said 1.0.0 since the first release, including in 1.1.3. A test keeps `ads/__init__.py`, `checker/pyproject.toml` and the latest changelog entry in step.
+
 ## 1.1.3 — 2026-11-01
 
 Tooling and documentation only; no rule, template or checker changes.
