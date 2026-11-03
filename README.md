@@ -21,6 +21,7 @@ The normative rules are in [STANDARD.md](STANDARD.md): three layers (portfolio, 
 | `copier.yml`, `template/` | The Copier questions and the files it renders; `template/_skills/` holds the single source of every skill |
 | `checker/` | The `ads` Python package (conformance rules, portfolio report, usage metrics) and its tests |
 | `scripts/ads.sh`, `scripts/ads.ps1` | Run everything in Docker |
+| `scripts/check-release.sh` | Checks that a commit is ready to be tagged as a release |
 | `tools/penpot-mcp/` | [A local Penpot MCP server](tools/penpot-mcp/README.md) in Docker, for projects with diagrams |
 | `docs/` | [Workflow](docs/workflow.md), [evidence](docs/evidence.md), [adoption](docs/adoption.md), [portfolio](docs/portfolio.md) |
 | `CHANGELOG.md`, `DEPRECATIONS.md` | Release history and deprecation notices |
@@ -42,6 +43,14 @@ docker compose run --rm tests             # this repository's test suite
 ```
 
 Copier can also be used directly: `copier copy --trust gh:jesusroncal94/ai-delivery-standard my-project`. The `--trust` flag is needed because the template uses Jinja includes for skills; it runs no tasks.
+
+## Releasing
+
+The change's own commit adds a `CHANGELOG.md` entry marked `unreleased` and sets the version in `checker/ads/__init__.py` and `checker/pyproject.toml`. Then the maintainer:
+
+1. Merges a pull request that replaces `unreleased` with the release date.
+2. Pulls `main` and runs `bash scripts/check-release.sh v1.2.3`, which fails unless the latest changelog entry is that version dated today and the checker reports the same version.
+3. Tags that commit (`git tag -a v1.2.3 -m "ai delivery standard 1.2.3"`), pushes the tag and, once the `release` CI job passes against the tag's date, publishes the GitHub release.
 
 ## Deliberate simplifications
 

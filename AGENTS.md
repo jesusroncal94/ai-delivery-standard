@@ -8,6 +8,7 @@ The AI delivery standard: a Copier template (`copier.yml`, `template/`), its nor
 docker compose run --rm tests                                  # checker tests, rendering every profile
 bash scripts/ads.sh check <dir>                                # conformance of a project
 bash scripts/ads.sh usage                                      # context per call from local transcripts
+bash scripts/check-release.sh v<version>                       # the commit is ready to be tagged (README, Releasing)
 ```
 
 ## Definition of done
