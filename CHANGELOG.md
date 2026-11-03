@@ -2,6 +2,14 @@
 
 The standard follows semantic versioning as defined in [STANDARD.md](STANDARD.md#10-versioning).
 
+## 1.1.6 — unreleased
+
+Release tooling only; no rule, template or checker changes.
+
+- `scripts/check-release.sh v<version>` checks that a commit is ready to be tagged: the latest `CHANGELOG.md` entry is that version with the release date, and `checker/ads/__init__.py` and `checker/pyproject.toml` report it. The release date is the tag's own date once the tag exists, otherwise today. The tags v1.1.1, v1.1.4 and v1.1.5 were cut before their changelog entry was dated correctly; their template is unaffected, and the dated entries are on `main`.
+- A `release` CI job runs that check on every pushed `v*` tag, before the GitHub release is published.
+- The README documents the release order: merge the pull request that dates the entry, pull, check, tag, then publish.
+
 ## 1.1.5 — 2026-11-03
 
 A template fix; no rule or checker changes.

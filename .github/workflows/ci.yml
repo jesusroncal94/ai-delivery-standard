@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     branches: [main]
+    tags: ["v*"]
 
 permissions:
   contents: read
@@ -26,3 +27,13 @@ jobs:
           fetch-depth: 0
       - name: Scan the whole history for secrets
         run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.21.2 detect --source /repo --no-banner --redact
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: The tagged commit is ready to be released
+        run: |
+          git fetch --force origin "+refs/tags/$GITHUB_REF_NAME:refs/tags/$GITHUB_REF_NAME"
+          bash scripts/check-release.sh "$GITHUB_REF_NAME"
