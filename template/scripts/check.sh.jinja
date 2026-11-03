@@ -3,7 +3,13 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+{% if check_command | regex_search('scripts.check[.](sh|ps1)([^A-Za-z0-9_.-]|$)') -%}
+# The check command runs this script, so the real check is written here, never a call to scripts/check.sh or scripts/check.ps1.
+echo 'scripts/check.sh: write the real check here; the check command runs this script, so calling it again would never end' >&2
+exit 1
+{%- else -%}
 {{ check_command }}
+{%- endif %}
 {%- if local_only %}
 
 MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W 2>/dev/null || pwd):/repo" zricethezav/gitleaks:v8.21.2 detect --source /repo --no-banner --redact
