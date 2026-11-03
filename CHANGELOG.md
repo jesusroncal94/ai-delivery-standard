@@ -10,7 +10,7 @@ A template fix; no rule or checker changes.
 - Upgrading a project whose answer runs `scripts/check.sh` and whose script already holds the real check: `ads.sh update` keeps the answer and leaves one conflict in `scripts/check.sh`. Keep the `before updating` side, which is your check, and delete the placeholder.
 - `docs/adoption.md` and the `check_command` help text say to answer `bash scripts/check.sh` when the check is written in the script.
 
-## 1.1.4 — 2026-11-01
+## 1.1.4 — 2026-11-02
 
 A checker fix; no rule or template changes.
 
