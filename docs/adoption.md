@@ -36,7 +36,7 @@ scripts/ads.sh adopt ../legacy --data profile=service --data level=1
 scripts/ads.sh update ../my-api
 ```
 
-Copier regenerates the old version, applies the new one and replays your local changes. Conflicts appear as inline markers or `.rej` files; resolve them, then open a PR. `check-gates.sh` fails while any marker or `.rej` file remains, and the guarded paths need the `human-approved` label. The scheduled `standard-update` job warns when a newer version exists.
+Copier regenerates the old version, applies the new one and replays your local changes. It reuses the answers in `.copier-answers.yml` (pass `--data key=value` to change one, or `--vcs-ref v1.2.3` for a version other than the latest) and keeps the mode each file has in your last commit. Conflicts appear as inline markers or `.rej` files; resolve them, then open a PR. `check-gates.sh` fails while any marker or `.rej` file remains, and the guarded paths need the `human-approved` label. The scheduled `standard-update` job warns when a newer version exists.
 
 ## Turn on diagrams
 
