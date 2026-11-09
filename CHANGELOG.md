@@ -2,7 +2,7 @@
 
 The standard follows semantic versioning as defined in [STANDARD.md](STANDARD.md#10-versioning).
 
-## 1.1.8 — unreleased
+## 1.1.8 — 2026-11-09
 
 A fix to `ads.sh`; no rule, template or checker changes.
 
