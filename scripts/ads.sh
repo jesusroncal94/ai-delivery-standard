@@ -2,7 +2,8 @@
 # Runs the standard's tools in Docker, so the host needs only Docker and Git.
 #   scripts/ads.sh new <dir> [copier options]     render a new project
 #   scripts/ads.sh adopt <dir> [copier options]   add the standard to an existing repository
-#   scripts/ads.sh update <dir>                   upgrade a project to the latest standard
+#   scripts/ads.sh update <dir> [copier options]  upgrade a project to the latest standard (or --vcs-ref vX.Y.Z),
+#                                                 reusing its recorded answers and keeping its committed file modes
 #   scripts/ads.sh check <dir> [--json]           conformance of one project
 #   scripts/ads.sh portfolio <registry.yaml>      conformance of every project in a registry
 #   scripts/ads.sh usage [<transcripts dir>]      context per call from Claude Code transcripts
@@ -24,13 +25,39 @@ docker build -q -t "$image" "$standard" >/dev/null
 
 run() { MSYS_NO_PATHCONV=1 docker run --rm -i -v "$standard:/standard:ro" -v "$(abspath .):/cwd:ro" "$@"; }
 
+# copier update copies the template's executable bit: on disk, and into the index when core.fileMode is false
+# (the Windows default). A project that committed a script with another mode would get a mode-only change on
+# every update, so put back the mode HEAD records, keeping whatever content the update staged or wrote.
+keep_committed_modes() {
+  local top meta a b c d e path
+  top=$(git -C "$1" rev-parse --show-toplevel 2>/dev/null) || return 0
+  git -C "$top" rev-parse -q --verify HEAD >/dev/null || return 0
+  git -C "$top" diff --cached --raw -z --no-abbrev --no-renames | while IFS= read -r -d '' meta && IFS= read -r -d '' path; do
+    read -r a b c d e <<<"$meta"
+    if [[ $a =~ ^:100(644|755)$ && $b =~ ^100(644|755)$ && ${a#:} != "$b" ]]; then
+      git -C "$top" update-index --cacheinfo "${a#:},$d,$path"
+      echo "ads.sh: kept the committed mode ${a#:} of $path"
+    fi
+  done
+  git -C "$top" diff --raw -z --no-abbrev --no-renames | while IFS= read -r -d '' meta && IFS= read -r -d '' path; do
+    read -r a b c d e <<<"$meta"
+    if [[ $a == :100755 && $b == 100644 ]]; then chmod +x "$top/$path"; echo "ads.sh: kept the committed mode 100755 of $path"
+    elif [[ $a == :100644 && $b == 100755 ]]; then chmod -x "$top/$path"; echo "ads.sh: kept the committed mode 100644 of $path"
+    fi
+  done
+}
+
 case "$command" in
   new|adopt)
     mkdir -p "${1:?target directory}"; target=$(abspath "$1"); shift
     run -v "$target:/work" --entrypoint copier "$image" copy --trust "$@" "$source" /work ;;
   update)
     target=$(abspath "${1:?target directory}"); shift
-    run -v "$target:/work" -w /work --entrypoint copier "$image" update --trust "$@" ;;
+    # The container has no terminal: reuse the answers in .copier-answers.yml instead of asking again.
+    defaults=--defaults
+    for arg in "$@"; do case $arg in --defaults | -l | -f) defaults= ;; esac; done
+    run -v "$target:/work" -w /work --entrypoint copier "$image" update --trust ${defaults:+"$defaults"} "$@"
+    keep_committed_modes "$target" ;;
   check)
     target=$(abspath "${1:-.}"); shift || true
     remotes=$(git -C "$target" remote 2>/dev/null | tr '\n' ' ' || true)

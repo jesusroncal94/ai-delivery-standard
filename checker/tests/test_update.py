@@ -93,3 +93,73 @@ def test_copier_update_keeps_an_answer_that_runs_the_check_script_and_marks_the_
     assert "bash scripts/check.sh" in (project / "AGENTS.md").read_text(encoding="utf-8")
     before_updating = check.read_text(encoding="utf-8").split("<<<<<<< before updating\n")[1].split("=======\n")[0]
     assert before_updating == HAND_WRITTEN_CHECK
+
+
+FAKE_DOCKER = """#!/usr/bin/env bash
+# Stands in for docker in ads.sh: build does nothing; run executes the entrypoint in the folder mounted at /work.
+[ "$1" = build ] && exit 0
+shift
+work= entrypoint=
+while [ $# -gt 0 ]; do
+  case $1 in
+    --rm|-i) shift ;;
+    -v) case $2 in *:/work) work=${2%:/work} ;; esac; shift 2 ;;
+    -w|-e) shift 2 ;;
+    --entrypoint) entrypoint=$2; shift 2 ;;
+    *) break ;;
+  esac
+done
+shift
+cd "$work" && exec "$entrypoint" "$@"
+"""
+SCRIPTS = ["scripts/check.sh", "scripts/check-gates.sh", "scripts/sync-skills.sh", ".claude/hooks/guard-paths.sh", ".claude/hooks/session-start.sh"]
+
+
+def index_modes(repo: Path) -> dict[str, str]:
+    listed = subprocess.run(["git", "-C", str(repo), "ls-files", "-s"], check=True, capture_output=True, text=True).stdout
+    return {line.split("\t", 1)[1]: line.split()[0] for line in listed.splitlines()}
+
+
+@pytest.mark.parametrize("file_mode", ["false", "true"])
+def test_ads_update_reuses_the_answers_and_keeps_the_committed_file_modes(template, tmp_path, file_mode):
+    """A project that committed its scripts as executable, from a template that tracks them as plain files (as v1.1.7 does).
+    copier update would ask the questions again without a terminal, and would copy the template's mode into the index
+    (core.fileMode false, the Windows default) or onto disk (true)."""
+    old = tmp_path / "old-template"
+    shutil.copytree(template, old)
+    subprocess.run("git ls-files -z | xargs -0 git update-index --chmod=-x", shell=True, cwd=old, check=True)
+    git(old, "commit", "-q", "-m", "test: track every file as non-executable")
+    git(old, "tag", "v0.0.1")
+    changelog = old / "CHANGELOG.md"
+    changelog.write_text(changelog.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+    git(old, "commit", "-q", "-am", "test: a new version")
+    git(old, "tag", "v0.0.2")
+
+    project = tmp_path / "project"
+    data = {"project_name": "project", "profile": "service", "level": 2, "check_command": "true"}
+    run_copy(str(old), project, data=data, vcs_ref="v0.0.1", defaults=True, unsafe=True, quiet=True)
+    git(project, "init", "-q", "-b", "main")
+    git(project, "config", "core.fileMode", file_mode)
+    git(project, "add", "-A")
+    for script in SCRIPTS:
+        (project / script).chmod(0o755)
+        git(project, "update-index", "--chmod=+x", script)
+    git(project, "commit", "-q", "-m", "chore: adopt the standard")
+
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    (bin_dir / "docker").write_text(FAKE_DOCKER, encoding="utf-8")
+    (bin_dir / "docker").chmod(0o755)
+    result = subprocess.run(
+        ["bash", str(template / "scripts/ads.sh"), "update", str(project), "--vcs-ref", "v0.0.2"],
+        stdin=subprocess.DEVNULL, capture_output=True, text=True,
+        env={**os.environ, "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}"},
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert yaml.safe_load((project / ".copier-answers.yml").read_text(encoding="utf-8"))["_commit"] == "v0.0.2"
+    assert all(index_modes(project)[script] == "100755" for script in SCRIPTS), index_modes(project)
+    # Staged or on disk, the only changes are the new version: its answers and the checker the CI installs.
+    changes = subprocess.run(["git", "-C", str(project), "diff", "HEAD", "--raw", "--no-renames"], check=True, capture_output=True, text=True).stdout
+    assert {line.split("\t", 1)[1] for line in changes.splitlines()} == {".copier-answers.yml", ".github/workflows/standard.yml"}
+    assert [line for line in changes.splitlines() if line.split()[0][1:] != line.split()[1]] == []
