@@ -9,7 +9,7 @@ RUN apt-get update \
 
 WORKDIR /opt/ads
 COPY checker/ checker/
-RUN pip install --no-cache-dir "copier==9.4.1" "pytest==8.3.3" ./checker
+RUN pip install --no-cache-dir "copier==9.19.1" "pytest==8.3.3" ./checker
 
 WORKDIR /work
 ENTRYPOINT ["ads"]

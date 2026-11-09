@@ -81,7 +81,7 @@ One change is one deliverable (S1): one acceptance entry, one spec or one fix, s
 | When | Who | What |
 |---|---|---|
 | Every PR | CI | `check`, `secrets`, `conformance` and `gates` (L2 and up). |
-| Weekly | CI, then human | The `standard-update` job runs `copier check-update` and fails with a warning when a newer version exists. The human reviews usage and trims any skill, MCP server or file that takes 10% of usage or more (R6). |
+| Weekly | CI, then human | The `standard-update` job runs `copier check-update` (Copier 9.8.0 or later) and fails with a warning when a newer version exists; any other failure of the command fails the job as an error, without the warning. The human reviews usage and trims any skill, MCP server or file that takes 10% of usage or more (R6). |
 | Monthly | Human | `scripts/ads.sh portfolio portfolio.yaml` reports every project's achieved level and failing rules, including unadopted repositories. `scripts/ads.sh usage` gives context per call (P50, P90, sessions over 200,000 tokens) for the metrics record each L3 project writes in `metrics/YYYY-MM.md`. The `release` skill's operational checks also run monthly. |
 | Quarterly | Human | The harness review in `docs/harness-review.md` for each L3 project: what recurred, which guide or sensor changed, what scaffolding no longer earns its cost. Review the standard against its triggers in [evidence.md](evidence.md#review-triggers). |
 | On a new version | Human, agent helps | On a branch, `scripts/ads.sh update <dir>` replays the new version as a diff. The human resolves conflicts (`check-gates.sh` fails while any marker or `.rej` file remains), labels the PR `human-approved`, because `.copier-answers.yml` and `AGENTS.md` are guarded, and merges. |

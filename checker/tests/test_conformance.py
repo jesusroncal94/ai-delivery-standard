@@ -1,4 +1,8 @@
+import os
+import subprocess
+
 import pytest
+import yaml
 
 from ads.conformance import evaluate
 from ads.project import Project
@@ -74,3 +78,45 @@ def test_projects_without_diagrams_skip_the_rule(render):
 
     assert not (project / "docs/design").exists()
     assert "L1-DIAGRAMS" not in {o.rule.id for o in evaluate(Project.load(project)).outcomes}
+
+
+def update_problems(project) -> list[str]:
+    return next(o.problems for o in evaluate(Project.load(project)).outcomes if o.rule.id == "L2-UPDATE")
+
+
+def test_the_update_check_needs_a_copier_that_has_check_update(render):
+    project = render("sample-update-pin", profile="service", level=2)
+    workflow = project / ".github/workflows/standard.yml"
+    assert update_problems(project) == []
+
+    workflow.write_text(workflow.read_text(encoding="utf-8").replace("copier==9.19.1", "copier==9.4.1"), encoding="utf-8")
+    assert update_problems(project) == ["CI pins copier 9.4.1, which has no 'check-update' command; pin 9.8.0 or later"]
+
+    workflow.write_text(workflow.read_text(encoding="utf-8").replace("copier==9.4.1", "copier==9.8"), encoding="utf-8")
+    assert update_problems(project) == []
+
+
+@pytest.mark.parametrize(
+    ("copier_exit", "job_exit", "warns"),
+    [(0, 0, False), (2, 1, True), (1, 1, False)],
+    ids=["up-to-date", "update-available", "copier-error"],
+)
+def test_the_scheduled_job_warns_only_when_copier_reports_an_update(render, tmp_path, copier_exit, job_exit, warns):
+    project = render(f"sample-update-exit-{copier_exit}", profile="service", level=2)
+    job = yaml.safe_load((project / ".github/workflows/standard.yml").read_text(encoding="utf-8"))["jobs"]["standard-update"]
+    script = tmp_path / "step.sh"
+    script.write_text(job["steps"][-1]["run"], encoding="utf-8")
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    for name, code in (("pip", 0), ("copier", copier_exit)):
+        (bin_dir / name).write_text(f"#!/bin/sh\nexit {code}\n", encoding="utf-8")
+        (bin_dir / name).chmod(0o755)
+
+    # GitHub runs `run:` steps with `bash --noprofile --norc -eo pipefail`.
+    result = subprocess.run(
+        ["bash", "--noprofile", "--norc", "-eo", "pipefail", str(script)],
+        capture_output=True, text=True, env={**os.environ, "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}"},
+    )
+
+    assert result.returncode == job_exit
+    assert ("::warning::" in result.stdout) == warns
