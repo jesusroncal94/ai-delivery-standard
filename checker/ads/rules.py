@@ -18,6 +18,7 @@ SKILL_DESCRIPTION_MAX_CHARS = 1_024
 SKILL_SPEC_FIELDS = {"name", "description", "license", "compatibility", "metadata", "allowed-tools"}
 MCP_MAX_SERVERS = 5
 METRICS_GRACE_DAYS = 45
+COPIER_CHECK_UPDATE_SINCE = (9, 8, 0)
 
 REQUIRED_SECTIONS = ("Commands", "Definition of done", "Prohibitions", "Portfolio conventions", "Where things live")
 CORE_SKILLS = ("spec", "build-slice", "review", "handoff", "release")
@@ -202,7 +203,14 @@ def ci(project: Project) -> list[str]:
 @rule("L2-UPDATE", 2, "CI checks on a schedule whether the standard has a newer version", has_remote_ci)
 def update_check(project: Project) -> list[str]:
     text = workflows(project)
-    return [] if "schedule" in text and "check-update" in text else ["no scheduled 'copier check-update' job"]
+    if not ("schedule" in text and "check-update" in text):
+        return ["no scheduled 'copier check-update' job"]
+    since = ".".join(map(str, COPIER_CHECK_UPDATE_SINCE))
+    return [
+        f"CI pins copier {pin}, which has no 'check-update' command; pin {since} or later"
+        for pin in re.findall(r"copier\s*==\s*(\d+(?:\.\d+)*)", text)
+        if tuple(int(part) for part in (pin.split(".") + ["0", "0"])[:3]) < COPIER_CHECK_UPDATE_SINCE
+    ]
 
 
 @rule("L2-GUARDED", 2, "Guarded paths protect the rules, CI and the gate script")

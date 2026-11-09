@@ -69,6 +69,9 @@ jobs:
           python-version: "3.12"
       - name: Is a newer version of the standard available?
         run: |
-          pip install "copier==9.4.1"
-          copier check-update --quiet || { echo "::warning::A newer version of the AI delivery standard is available: run copier update."; exit 1; }
+          pip install "copier==9.19.1"
+          # check-update exits 2 when a newer version exists; any other failure is a real error.
+          status=0; copier check-update --quiet || status=$?
+          if [ "$status" -eq 2 ]; then echo "::warning::A newer version of the AI delivery standard is available: run copier update."; exit 1; fi
+          exit "$status"
 {%- endif %}

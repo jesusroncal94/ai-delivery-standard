@@ -2,6 +2,15 @@
 
 The standard follows semantic versioning as defined in [STANDARD.md](STANDARD.md#10-versioning).
 
+## 1.1.7 — unreleased
+
+A template and checker fix; no rule changes.
+
+- The scheduled `standard-update` job works. It installed Copier 9.4.1, which has no `check-update` command (it arrived in 9.8.0), so every run failed with `Unknown switch --quiet`, and the job reported that failure as "A newer version of the AI delivery standard is available". The job now installs Copier 9.19.1, warns and fails only when `copier check-update` exits 2 (an update exists), and fails with Copier's own exit code on any other error.
+- L2-UPDATE fails when a workflow pins a Copier older than 9.8.0, which is why the broken job passed conformance. Projects keep the checker of the version they were rendered from, so this applies once they update.
+- The Docker image used by `ads.sh` and the tests installs Copier 9.19.1, the same version as the job.
+- Upgrading: `scripts/ads.sh update <dir>` (or `copier update --trust --vcs-ref v1.1.7`) replaces the job's step; there is nothing to resolve unless the project edited it.
+
 ## 1.1.6 — 2026-11-03
 
 Release tooling only; no rule, template or checker changes.
